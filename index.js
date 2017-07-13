@@ -1,6 +1,21 @@
 var express = require('express');
 var app = express();
+
 var timestamp = require('unix-timestamp');
+var requestLanguage = require('express-request-language');
+var useragent = require('express-useragent');
+var cookieParser = require('cookie-parser');
+
+app.use(cookieParser());
+app.use(requestLanguage({
+  languages: ['en-US', 'zh-CN'],
+  cookie: {
+    name: 'language',
+    options: { maxAge: 24*3600*1000 },
+    url: '/languages/{language}'
+  }
+}));
+app.use(useragent.express());
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -35,6 +50,14 @@ app.get('/:str', function(request, response) {
       "unix":"invalid string"
     })
   }
+});
+
+app.get('/getHead/:str', function(request, response) {
+  response.json({
+    "ipaddress":request.ip,
+    "os":request.useragent['os'],
+    "language":request.language
+  })
 });
 
 app.listen(app.get('port'), function() {
