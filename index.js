@@ -15,6 +15,7 @@ app.get('/', function(request, response) {
 });
 
 app.get('/:str', function(request, response) {
+  //test
   var str = request.params.str.split('%20').join(' ');
   var date = new Date(str);
   if(date!="Invalid Date"){
