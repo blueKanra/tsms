@@ -6,6 +6,7 @@ var requestLanguage = require('express-request-language');
 var useragent = require('express-useragent');
 var cookieParser = require('cookie-parser');
 
+
 app.use(cookieParser());
 app.use(requestLanguage({
   languages: ['en-US', 'zh-CN'],
@@ -53,8 +54,9 @@ app.get('/:str', function(request, response) {
 });
 
 app.get('/getHead/:str', function(request, response) {
+  console.log(request.connection);
   response.json({
-    "ipaddress":request.ip,
+    "ipaddress":request.connection,
     "os":request.useragent['os'],
     "language":request.language
   })
