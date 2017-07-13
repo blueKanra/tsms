@@ -6,6 +6,7 @@ var requestLanguage = require('express-request-language');
 var useragent = require('express-useragent');
 var cookieParser = require('cookie-parser');
 
+var fs = require('fs');
 
 app.use(cookieParser());
 app.use(requestLanguage({
@@ -60,6 +61,46 @@ app.get('/getHead/:str', function(request, response) {
     "os":request.useragent['os'],
     "language":request.language
   })
+});
+
+app.get('/shrtnr/:str', function(request, response) {
+  var shrtJSON = require('./jsondb/shortener.json')
+
+  if(shrtJSON[request.params.str]!=undefined){
+    console.log(Object.keys(shrtJSON)[request.params.str]);
+    response.redirect("https://www." + request.params.str);
+  }else{
+    if(Object.keys(shrtJSON)[request.params.str]!=undefined){
+      response.redirect("https://www." + Object.keys(shrtJSON)[request.params.str]);
+    }else{
+      console.log("Formatting");
+      var x = request.params.str.split(".")
+      var str = "";
+
+      if(x[1]=="com"||
+        x[1]=="co"||
+        x[1]=="uk"||
+        x[1]=="fr"||
+        x[1]=="gov"||
+        x[1]=="hk"||
+        x[1]=="net"||
+        x[1]=="org"||
+        x[1]=="ca"){
+
+          shrtJSON[request.params.str] = Object.keys(shrtJSON).length;
+          fs.writeFile('./jsondb/shortener.json', JSON.stringify(shrtJSON), function(){
+            response.json({
+              "og":request.params.str,
+              "shrt":"https://enigmatic-stream-32553.herokuapp.com/shrter/" + shrtJSON[request.params.str]
+            });
+            response.end();
+          })
+        }else{
+          console.log("not formatted as 'website.com/whatever'");
+          response.send("please format as 'website.com/whatever'");
+        }
+    }
+  }
 });
 
 app.listen(app.get('port'), function() {
